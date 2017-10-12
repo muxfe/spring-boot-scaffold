@@ -11,7 +11,7 @@ import javax.persistence.Id;
 @Data
 @Entity
 @AllArgsConstructor
-public class DEPT {
+public class Department {
   
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -21,7 +21,11 @@ public class DEPT {
   
   private String loc;
   
-  DEPT() { // for jpa
+  public Department() { // for jpa
+  }
+  
+  public Department(Integer deptno) {
+    this.deptno = deptno;
   }
   
 }

@@ -3,16 +3,13 @@ package io.muxfe.springbootstarter.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Data
 @Entity
 @AllArgsConstructor
-public class EMP {
+public class Employee {
   
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,7 +19,8 @@ public class EMP {
   
   private String job;
   
-  private Integer mgr;
+  @ManyToOne(cascade = CascadeType.ALL)
+  private Employee mgr;
   
   private Timestamp hiredate;
   
@@ -30,9 +28,14 @@ public class EMP {
   
   private Double comm;
   
-  private Integer deptno;
+  @ManyToOne(cascade = CascadeType.ALL)
+  private Department department;
   
-  EMP() { // for jpa
+  public Employee() { // for jpa
+  }
+  
+  public Employee(Integer empno) {
+    this.empno = empno;
   }
   
 }

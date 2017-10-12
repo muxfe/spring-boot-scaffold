@@ -3,41 +3,68 @@ buildscript {
 		springBootVersion = '1.5.7.RELEASE'
 	}
 	repositories {
-		mavenCentral()
+    mavenCentral()
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
 	}
 	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+  }
+}
+
+plugins {
+  id 'org.asciidoctor.convert' version '1.5.3'
 }
 
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'org.asciidoctor.convert'
+apply plugin: 'io.spring.dependency-management'
 
 group = 'io.muxfe'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
-	mavenCentral()
+  mavenCentral()
+  maven { url "https://repo.spring.io/snapshot" }
+  maven { url "https://repo.spring.io/milestone" }
 }
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-data-jpa')
-  compile('org.springframework.boot:spring-boot-starter-data-rest')
-	compile('org.springframework.boot:spring-boot-starter-mobile')
-	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-	compile('org.springframework.boot:spring-boot-starter-security')
-  compile('org.springframework.boot:spring-boot-starter-actuator')
-	compile('org.springframework.boot:spring-boot-starter-web')
-  compile("org.springframework.boot:spring-boot-starter-jdbc")
-  compile('org.springframework.boot:spring-boot-starter-aop')
-	compile('com.h2database:h2')
-  compile files('libs/ojdbc6.jar')
-	runtime('org.springframework.boot:spring-boot-devtools')
-	compileOnly('org.springframework.boot:spring-boot-configuration-processor')
-	compileOnly('org.projectlombok:lombok')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
-	testCompile('org.springframework.security:spring-security-test')
+	compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+  compile 'org.springframework.boot:spring-boot-starter-data-rest'
+	compile 'org.springframework.boot:spring-boot-starter-mobile'
+	compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	compile 'org.springframework.boot:spring-boot-starter-security'
+  compile 'org.springframework.boot:spring-boot-starter-actuator'
+	compile 'org.springframework.boot:spring-boot-starter-web'
+  compile "org.springframework.boot:spring-boot-starter-jdbc"
+  compile 'org.springframework.boot:spring-boot-starter-aop'
+	compile 'com.h2database:h2'
+	runtime 'org.springframework.boot:spring-boot-devtools'
+	compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
+	compileOnly 'org.projectlombok:lombok'
+	testCompile 'org.springframework.boot:spring-boot-starter-test'
+	testCompile 'org.springframework.security:spring-security-test'
+  testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc'
+  asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+  testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc'
+}
+
+ext {
+  snippetsDir = file('build/generated-snippets')
+}
+
+test {
+  outputs.dir snippetsDir
+}
+
+asciidoctor {
+  inputs.dir snippetsDir
+  sourceDir 'src/main/asciidoc'
+  attributes 'snippets': file('target/snippets')
+  dependsOn test
 }
