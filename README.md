@@ -6,24 +6,41 @@
 
 ## REST API
 
-- `GET /api/[repository]/`
+- `GET /api/[repository]`
   - Accept: `application/json;chartset=utf-8`
+  - Status: 200 Ok
   - QueryString
     - page(=0)
     - size(=20)
     - sort(`[property],asc|desc`)
-    - selective `[Entity]` properties
   - Response
-    - content(=[])
-    - totalElements
-    - totalPages
-    - number
-    - size
-    - numberOfElements
-    - sort
+    - _embedded
+      - `[entity]`(=[])
+    - page
+      - size
+      - number
+      - totalElements
+      - totalPages
+- `GET /api/[repository]/fuzzy`
+  - Accept: `application/json;chartset=utf-8`
+  - Status: 200 Ok
+  - QueryString
+    - page(=0)
+    - size(=20)
+    - sort(`[property],asc|desc`)
+    - selective `[Entity]` properties(exclude `id`)
+  - Response
+    - _embedded
+      - `[entity]`(=[])
+    - page
+      - size
+      - number
+      - totalElements
+      - totalPages
 - `POST /api/[repository]`
   - ContentType: `application/json`
   - Accept: `application/json;chartset=utf-8`
+  - Status: 201 Created
   - Body
     - `[Entity]`
   - Response
@@ -31,28 +48,33 @@
 - `PUT /api/[repository]/[id]`
   - ContentType: `application/json`
   - Accept: `application/json;chartset=utf-8`
+  - Status: 200 Ok
   - Body
-    - `[Entity]`
+    - **All** `[Entity]` properties
   - Response
     - updated `[Entity]`
 - `PATCH /api/[repository]/[id]`
   - ContentType: `application/json`
   - Accept: `application/json;chartset=utf-8`
+  - Status: 200 Ok
   - Body
-    - partial `Entity` properties
+    - **Partial** `[Entity]` properties
   - Response
     - updated `[Entity]`
 - `DELETE /api/[repository]/[id]`
-  - Response
-    - 204 NoContent
+  - Status 204 NoContent
 
 ## TODO
 
 - [X] SpringBootApplication
 - [X] Jpa Crud Operation
-- [X] Some Entity and Controller Examples
-- [X] Test
-- [ ] Rest Docs
+- [X] Entity and Controller Examples
+- [X] Unit Test
+- [X] `ExposeIdsRepositoryRestConfiguration`
+- [X] Support CORS
+- [X] Fuzzy search
+- [X] Application initializer
+- [ ] Entity Projection
 
 ## References
 
