@@ -13,7 +13,7 @@ public class Employee {
   
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  private Integer empno;
+  private Long id;
   
   private String ename;
   
@@ -22,7 +22,7 @@ public class Employee {
   @ManyToOne(cascade = CascadeType.ALL)
   private Employee mgr;
   
-  private Timestamp hiredate;
+  private Long hiredate;
   
   private Double sal;
   
@@ -33,9 +33,4 @@ public class Employee {
   
   public Employee() { // for jpa
   }
-  
-  public Employee(Integer empno) {
-    this.empno = empno;
-  }
-  
 }
