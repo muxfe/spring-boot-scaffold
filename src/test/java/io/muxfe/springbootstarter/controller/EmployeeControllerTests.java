@@ -17,8 +17,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -48,45 +46,46 @@ public class EmployeeControllerTests {
   public void setup() {
     Department department = new Department(null, "test", "test");
     Employee manager = new Employee(null, "manager", "manager", null,
-      new Timestamp(System.currentTimeMillis()),
+      System.currentTimeMillis(),
       0.0, 0.0, department);
     employee = repository.save(new Employee(
       null, "test", "test", manager,
-      new Timestamp(System.currentTimeMillis()),
+      System.currentTimeMillis(),
       0.0, 0.0, department));
   }
 
   @Test
-  public void findAllEmployeesTest() throws Exception {
+  public void findAllEmployeesByPaginationTest() throws Exception {
     this.mockMvc.perform(
-      get(apiUrl + "/").
+      get(apiUrl).
         accept(MediaType.APPLICATION_JSON).
         param("page", "0").
         param("size", "10").
-        param("sort", "empno,desc")).
+        param("sort", "id,desc")).
       andDo(print()).
       andExpect(status().isOk()).
       andExpect(content().contentType("application/json;charset=UTF-8")).
-      andExpect(jsonPath("$.content").isArray()).
-      andExpect(jsonPath("$.number").value(0)).
-      andExpect(jsonPath("$.size").value(10)).
-      andExpect(jsonPath("$.numberOfElements").isNumber());
+      andExpect(jsonPath("$._embedded.employees").isArray()).
+      andExpect(jsonPath("$.page.number").value(0)).
+      andExpect(jsonPath("$.page.size").value(10)).
+      andExpect(jsonPath("$.page.totalElements").isNumber()).
+      andExpect(jsonPath("$.page.totalPages").value(1));
   }
 
   @Test
   public void findEmployeeByIdTest() throws Exception {
     this.mockMvc.perform(
-      get(apiUrl + "/").
-        accept(MediaType.APPLICATION_JSON).
-        param("empno", employee.getEmpno().toString())).
+      get(apiUrl + "/{id}", employee.getId()).
+        accept(MediaType.APPLICATION_JSON)).
       andDo(print()).
       andExpect(status().isOk()).
       andExpect(content().contentType("application/json;charset=UTF-8")).
-      andExpect(jsonPath("$.content").isArray()).
-      andExpect(jsonPath("$.content[0].empno").value(employee.getEmpno())).
-      andExpect(jsonPath("$.number").value(0)).
-      andExpect(jsonPath("$.size").value(20)).
-      andExpect(jsonPath("$.numberOfElements").value(1));
+      andExpect(jsonPath("$.id").value(employee.getId())).
+      andExpect(jsonPath("$.ename").value(employee.getEname())).
+      andExpect(jsonPath("$.job").value(employee.getJob())).
+      andExpect(jsonPath("$.hiredate").value(employee.getHiredate())).
+      andExpect(jsonPath("$.sal").value(employee.getSal())).
+      andExpect(jsonPath("$.comm").value(employee.getComm()));
   }
 
   @Test
@@ -113,11 +112,11 @@ public class EmployeeControllerTests {
   @WithMockUser
   public void updateEmployeeTest() throws Exception {
     Employee body = new Employee(
-      employee.getEmpno(), "changed", "changed", employee.getMgr(),
-      new Timestamp(System.currentTimeMillis()),
+      employee.getId(), "changed", "changed", employee.getMgr(),
+      System.currentTimeMillis(),
       0.0, 0.0, employee.getDepartment());
     this.mockMvc.perform(
-      put(apiUrl + "/{empno}", employee.getEmpno()).
+      put(apiUrl + "/{empno}", employee.getId()).
         contentType(MediaType.APPLICATION_JSON).
         content(objectMapper.writeValueAsString(body)).
         accept(MediaType.APPLICATION_JSON)).
@@ -132,7 +131,7 @@ public class EmployeeControllerTests {
   @WithMockUser
   public void partialUpdateEmployeeTest() throws Exception {
     this.mockMvc.perform(
-      patch(apiUrl + "/{empno}", employee.getEmpno()).
+      patch(apiUrl + "/{empno}", employee.getId()).
         contentType(MediaType.APPLICATION_JSON).
         content("{\"ename\":\"changed\"}").
         accept(MediaType.APPLICATION_JSON)).
@@ -146,7 +145,7 @@ public class EmployeeControllerTests {
   @Test
   @WithMockUser
   public void deleteEmployeeTest() throws Exception {
-    this.mockMvc.perform(delete(apiUrl + "/{empno}", employee.getEmpno())).
+    this.mockMvc.perform(delete(apiUrl + "/{empno}", employee.getId())).
       andDo(print()).
       andExpect(status().isNoContent());
   }

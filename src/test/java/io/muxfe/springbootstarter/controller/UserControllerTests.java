@@ -18,10 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -62,9 +59,9 @@ public class UserControllerTests {
   
   @Test
   @WithMockUser(roles = "ADMIN")
-  public void findAllUsersTest() throws Exception {
+  public void findAllUsersByPaginationest() throws Exception {
     this.mockMvc.perform(
-      get(apiUrl + "/").
+      get(apiUrl).
         accept(MediaType.APPLICATION_JSON).
         param("page", "0").
         param("size", "10").
@@ -72,27 +69,25 @@ public class UserControllerTests {
       andDo(print()).
       andExpect(status().isOk()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.content").isArray()).
-      andExpect(jsonPath("$.number").value(0)).
-      andExpect(jsonPath("$.size").value(10)).
-      andExpect(jsonPath("$.numberOfElements").isNumber());
+      andExpect(jsonPath("$._embedded.users").isArray()).
+      andExpect(jsonPath("$.page.number").value(0)).
+      andExpect(jsonPath("$.page.size").value(10)).
+      andExpect(jsonPath("$.page.totalElements").isNumber()).
+      andExpect(jsonPath("$.page.totalPages").value(1));
   }
 
   @Test
   @WithMockUser(roles = "ADMIN")
   public void findUserByIdTest() throws Exception {
     this.mockMvc.perform(
-      get(apiUrl + "/").
-        accept(MediaType.APPLICATION_JSON).
-        param("id", user.getId().toString())).
+      get(apiUrl + "/{id}", user.getId()).
+        accept(MediaType.APPLICATION_JSON)).
       andDo(print()).
       andExpect(status().isOk()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.content").isArray()).
-      andExpect(jsonPath("$.content[0].id").value(user.getId())).
-      andExpect(jsonPath("$.number").value(0)).
-      andExpect(jsonPath("$.size").value(20)).
-      andExpect(jsonPath("$.numberOfElements").value(1));
+      andExpect(jsonPath("$.id").value(user.getId())).
+      andExpect(jsonPath("$.username").value(user.getUsername())).
+      andExpect(jsonPath("$.roles[0]").value(user.getRoles().get(0)));
   }
   
   @Test

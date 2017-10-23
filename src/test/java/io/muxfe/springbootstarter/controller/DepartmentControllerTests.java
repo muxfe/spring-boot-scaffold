@@ -47,58 +47,57 @@ public class DepartmentControllerTests {
   }
 
   @Test
-  public void findAllDepartmentsTest() throws Exception {
+  public void findAllDepartmentsByPaginationTest() throws Exception {
     this.mockMvc.perform(
-      get(apiUrl + "/").
+      get(apiUrl).
         accept(MediaType.APPLICATION_JSON).
         param("page", "0").
         param("size", "10").
-        param("sort", "deptno,desc")).
+        param("sort", "id,desc")).
       andDo(print()).
       andExpect(status().isOk()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.content").isArray()).
-      andExpect(jsonPath("$.number").value(0)).
-      andExpect(jsonPath("$.size").value(10)).
-      andExpect(jsonPath("$.numberOfElements").isNumber());
+      andExpect(jsonPath("$._embedded.departments").isArray()).
+      andExpect(jsonPath("$.page.number").value(0)).
+      andExpect(jsonPath("$.page.size").value(10)).
+      andExpect(jsonPath("$.page.totalElements").isNumber()).
+      andExpect(jsonPath("$.page.totalPages").value(1));
   }
 
   @Test
   public void findDepartmentByIdTest() throws Exception {
     this.mockMvc.perform(
-      get(apiUrl + "/").
-        accept(MediaType.APPLICATION_JSON).
-        param("deptno", department.getDeptno().toString())).
+      get(apiUrl + "/{id}", department.getId()).
+        accept(MediaType.APPLICATION_JSON)).
       andDo(print()).
       andExpect(status().isOk()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.content").isArray()).
-      andExpect(jsonPath("$.content[0].deptno").value(department.getDeptno())).
-      andExpect(jsonPath("$.number").value(0)).
-      andExpect(jsonPath("$.size").value(20)).
-      andExpect(jsonPath("$.numberOfElements").value(1));
+      andExpect(jsonPath("$.id").value(department.getId())).
+      andExpect(jsonPath("$.dname").value(department.getDname())).
+      andExpect(jsonPath("$.loc").value(department.getLoc()));
   }
-  
-  @Test 
-  public void findDepartmentsByDnameWithContaining() throws Exception {
+
+  @Test
+  public void findDepartmentsByFuzzySearch() throws Exception {
     this.mockMvc.perform(
-      get(apiUrl + "/").
+      get(apiUrl + "/fuzzy").
         accept(MediaType.APPLICATION_JSON).
-        param("dname", "e")).
+        param("dname", "1")).
       andDo(print()).
       andExpect(status().isOk()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.content").isArray()).
-      andExpect(jsonPath("$.content[0].dname").value(department.getDname())).
-      andExpect(jsonPath("$.number").value(0)).
-      andExpect(jsonPath("$.size").value(20)).
-      andExpect(jsonPath("$.numberOfElements").isNumber());
+      andExpect(jsonPath("$._embedded.departments").isArray()).
+      andExpect(jsonPath("$._embedded.departments[0].dname").value("test-1")).
+      andExpect(jsonPath("$.page.number").value(0)).
+      andExpect(jsonPath("$.page.size").value(20)).
+      andExpect(jsonPath("$.page.totalElements").value(1)).
+      andExpect(jsonPath("$.page.totalPages").value(1));
   }
 
   @Test
   @WithMockUser
   public void createDepartmentTest() throws Exception {
-    Department department = new Department(null, "test", "test");
+    Department department = new Department(null, "test-create", "test-create");
     this.mockMvc.perform(
       post(apiUrl).
         contentType(MediaType.APPLICATION_JSON).
@@ -107,16 +106,16 @@ public class DepartmentControllerTests {
       andDo(print()).
       andExpect(status().isCreated()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.dname").value("test")).
-      andExpect(jsonPath("$.loc").value("test"));
+      andExpect(jsonPath("$.dname").value("test-create")).
+      andExpect(jsonPath("$.loc").value("test-create"));
   }
 
   @Test
   @WithMockUser
   public void updateDepartmentTest() throws Exception {
-    Department body = new Department(department.getDeptno(), "changed", "changed");
+    Department body = new Department(department.getId(), "changed", "changed");
     this.mockMvc.perform(
-      put(apiUrl + "/{deptno}", department.getDeptno()).
+      put(apiUrl + "/{id}", department.getId()).
         contentType(MediaType.APPLICATION_JSON).
         content(objectMapper.writeValueAsString(body)).
         accept(MediaType.APPLICATION_JSON)).
@@ -131,7 +130,7 @@ public class DepartmentControllerTests {
   @WithMockUser
   public void partialUpdateDepartmentTest() throws Exception {
     this.mockMvc.perform(
-      patch(apiUrl + "/{deptno}", department.getDeptno()).
+      patch(apiUrl + "/{id}", department.getId()).
         contentType(MediaType.APPLICATION_JSON).
         content("{\"dname\":\"changed\"}").
         accept(MediaType.APPLICATION_JSON)).
@@ -145,7 +144,7 @@ public class DepartmentControllerTests {
   @Test
   @WithMockUser
   public void deleteDepartmentTest() throws Exception {
-    this.mockMvc.perform(delete(apiUrl + "/{deptno}", department.getDeptno())).
+    this.mockMvc.perform(delete(apiUrl + "/{id}", department.getId())).
       andDo(print()).
       andExpect(status().isNoContent());
   }
