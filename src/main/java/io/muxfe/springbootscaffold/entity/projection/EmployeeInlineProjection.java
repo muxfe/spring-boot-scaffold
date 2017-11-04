@@ -1,7 +1,7 @@
-package io.muxfe.springbootstarter.entity.projection;
+package io.muxfe.springbootscaffold.entity.projection;
 
-import io.muxfe.springbootstarter.entity.Department;
-import io.muxfe.springbootstarter.entity.Employee;
+import io.muxfe.springbootscaffold.entity.Department;
+import io.muxfe.springbootscaffold.entity.Employee;
 import org.springframework.data.rest.core.config.Projection;
 
 @Projection(name = "inline", types = Employee.class)

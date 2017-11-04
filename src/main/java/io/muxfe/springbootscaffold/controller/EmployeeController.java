@@ -1,6 +1,6 @@
-package io.muxfe.springbootstarter.controller;
+package io.muxfe.springbootscaffold.controller;
 
-import io.muxfe.springbootstarter.entity.Employee;
+import io.muxfe.springbootscaffold.entity.Employee;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.web.bind.annotation.*;
 

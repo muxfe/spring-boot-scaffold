@@ -1,8 +1,9 @@
-package io.muxfe.springbootstarter.controller;
+package io.muxfe.springbootscaffold.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.muxfe.springbootstarter.entity.Department;
-import io.muxfe.springbootstarter.repository.DepartmentRepository;
+import io.muxfe.springbootscaffold.entity.Department;
+import io.muxfe.springbootscaffold.entity.Employee;
+import io.muxfe.springbootscaffold.repository.EmployeeRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,28 +27,35 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class DepartmentControllerTests {
+public class EmployeeControllerTests {
 
   @Autowired
   private MockMvc mockMvc;
 
-  private final String apiUrl = "/api/departments";
+  private final String apiUrl = "/api/employees";
 
   @Autowired
   private ObjectMapper objectMapper;
 
   @Autowired
-  private DepartmentRepository repository;
+  private EmployeeRepository repository;
 
-  private Department department;
+  private Employee employee;
 
   @Before
   public void setup() {
-    department = repository.save(new Department(null, "test", "test"));
+    Department department = new Department(null, "test", "test");
+    Employee manager = new Employee(null, "manager", "manager", null,
+      System.currentTimeMillis(),
+      0.0, 0.0, department);
+    employee = repository.save(new Employee(
+      null, "test", "test", manager,
+      System.currentTimeMillis(),
+      0.0, 0.0, department));
   }
 
   @Test
-  public void findAllDepartmentsByPaginationTest() throws Exception {
+  public void findAllEmployeesByPaginationTest() throws Exception {
     this.mockMvc.perform(
       get(apiUrl).
         accept(MediaType.APPLICATION_JSON).
@@ -56,8 +64,8 @@ public class DepartmentControllerTests {
         param("sort", "id,desc")).
       andDo(print()).
       andExpect(status().isOk()).
-      andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$._embedded.departments").isArray()).
+      andExpect(content().contentType("application/json;charset=UTF-8")).
+      andExpect(jsonPath("$._embedded.employees").isArray()).
       andExpect(jsonPath("$.page.number").value(0)).
       andExpect(jsonPath("$.page.size").value(10)).
       andExpect(jsonPath("$.page.totalElements").isNumber()).
@@ -65,86 +73,75 @@ public class DepartmentControllerTests {
   }
 
   @Test
-  public void findDepartmentByIdTest() throws Exception {
+  public void findEmployeeByIdTest() throws Exception {
     this.mockMvc.perform(
-      get(apiUrl + "/{id}", department.getId()).
+      get(apiUrl + "/{id}", employee.getId()).
         accept(MediaType.APPLICATION_JSON)).
       andDo(print()).
       andExpect(status().isOk()).
-      andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.id").value(department.getId())).
-      andExpect(jsonPath("$.dname").value(department.getDname())).
-      andExpect(jsonPath("$.loc").value(department.getLoc()));
-  }
-
-  @Test
-  public void findDepartmentsByFuzzySearch() throws Exception {
-    this.mockMvc.perform(
-      get(apiUrl + "/fuzzy").
-        accept(MediaType.APPLICATION_JSON).
-        param("dname", "1")).
-      andDo(print()).
-      andExpect(status().isOk()).
-      andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$._embedded.departments").isArray()).
-      andExpect(jsonPath("$._embedded.departments[0].dname").value("test-1")).
-      andExpect(jsonPath("$.page.number").value(0)).
-      andExpect(jsonPath("$.page.size").value(20)).
-      andExpect(jsonPath("$.page.totalElements").value(1)).
-      andExpect(jsonPath("$.page.totalPages").value(1));
+      andExpect(content().contentType("application/json;charset=UTF-8")).
+      andExpect(jsonPath("$.id").value(employee.getId())).
+      andExpect(jsonPath("$.ename").value(employee.getEname())).
+      andExpect(jsonPath("$.job").value(employee.getJob())).
+      andExpect(jsonPath("$.hiredate").value(employee.getHiredate())).
+      andExpect(jsonPath("$.sal").value(employee.getSal())).
+      andExpect(jsonPath("$.comm").value(employee.getComm()));
   }
 
   @Test
   @WithMockUser
-  public void createDepartmentTest() throws Exception {
-    Department department = new Department(null, "test-create", "test-create");
+  public void createEmployeeTest() throws Exception {
+    Employee newEmployee = new Employee();
+    newEmployee.setEname("test");
     this.mockMvc.perform(
       post(apiUrl).
         contentType(MediaType.APPLICATION_JSON).
-        content(objectMapper.writeValueAsString(department)).
+        content(objectMapper.writeValueAsString(newEmployee)).
         accept(MediaType.APPLICATION_JSON)).
       andDo(print()).
       andExpect(status().isCreated()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.dname").value("test-create")).
-      andExpect(jsonPath("$.loc").value("test-create"));
+      andExpect(jsonPath("$.ename").value("test"));
   }
 
   @Test
   @WithMockUser
-  public void updateDepartmentTest() throws Exception {
-    Department body = new Department(department.getId(), "changed", "changed");
+  public void updateEmployeeTest() throws Exception {
+    Employee body = new Employee(
+      employee.getId(), "changed", "changed", employee.getMgr(),
+      System.currentTimeMillis(),
+      0.0, 0.0, employee.getDepartment());
     this.mockMvc.perform(
-      put(apiUrl + "/{id}", department.getId()).
+      put(apiUrl + "/{empno}", employee.getId()).
         contentType(MediaType.APPLICATION_JSON).
         content(objectMapper.writeValueAsString(body)).
         accept(MediaType.APPLICATION_JSON)).
       andDo(print()).
       andExpect(status().isOk()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.dname").value("changed")).
-      andExpect(jsonPath("$.loc").value("changed"));
+      andExpect(jsonPath("$.ename").value("changed")).
+      andExpect(jsonPath("$.job").value("changed"));
   }
 
   @Test
   @WithMockUser
-  public void partialUpdateDepartmentTest() throws Exception {
+  public void partialUpdateEmployeeTest() throws Exception {
     this.mockMvc.perform(
-      patch(apiUrl + "/{id}", department.getId()).
+      patch(apiUrl + "/{empno}", employee.getId()).
         contentType(MediaType.APPLICATION_JSON).
-        content("{\"dname\":\"changed\"}").
+        content("{\"ename\":\"changed\"}").
         accept(MediaType.APPLICATION_JSON)).
       andDo(print()).
       andExpect(status().isOk()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.dname").value("changed")).
-      andExpect(jsonPath("$.loc").value("test"));
+      andExpect(jsonPath("$.ename").value("changed")).
+      andExpect(jsonPath("$.job").value("test"));
   }
 
   @Test
   @WithMockUser
-  public void deleteDepartmentTest() throws Exception {
-    this.mockMvc.perform(delete(apiUrl + "/{id}", department.getId())).
+  public void deleteEmployeeTest() throws Exception {
+    this.mockMvc.perform(delete(apiUrl + "/{empno}", employee.getId())).
       andDo(print()).
       andExpect(status().isNoContent());
   }

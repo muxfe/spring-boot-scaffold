@@ -1,4 +1,4 @@
-package io.muxfe.springbootstarter.entity;
+package io.muxfe.springbootscaffold.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

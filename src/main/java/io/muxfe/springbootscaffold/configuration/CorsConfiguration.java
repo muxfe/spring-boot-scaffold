@@ -1,4 +1,4 @@
-package io.muxfe.springbootstarter.configuration;
+package io.muxfe.springbootscaffold.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

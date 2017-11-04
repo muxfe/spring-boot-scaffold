@@ -1,10 +1,9 @@
-package io.muxfe.springbootstarter.entity;
+package io.muxfe.springbootscaffold.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 
 @Data
 @Entity

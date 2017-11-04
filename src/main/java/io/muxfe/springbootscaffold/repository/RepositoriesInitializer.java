@@ -1,8 +1,8 @@
-package io.muxfe.springbootstarter.repository;
+package io.muxfe.springbootscaffold.repository;
 
-import io.muxfe.springbootstarter.entity.Department;
-import io.muxfe.springbootstarter.entity.Employee;
-import io.muxfe.springbootstarter.entity.User;
+import io.muxfe.springbootscaffold.entity.Department;
+import io.muxfe.springbootscaffold.entity.Employee;
+import io.muxfe.springbootscaffold.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

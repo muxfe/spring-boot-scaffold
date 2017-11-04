@@ -1,6 +1,6 @@
-package io.muxfe.springbootstarter;
+package io.muxfe.springbootscaffold;
 
-import io.muxfe.springbootstarter.repository.RepositoriesInitializer;
+import io.muxfe.springbootscaffold.repository.RepositoriesInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

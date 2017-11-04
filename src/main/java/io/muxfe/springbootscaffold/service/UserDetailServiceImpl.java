@@ -1,7 +1,7 @@
-package io.muxfe.springbootstarter.service;
+package io.muxfe.springbootscaffold.service;
 
-import io.muxfe.springbootstarter.entity.User;
-import io.muxfe.springbootstarter.repository.UserRepository;
+import io.muxfe.springbootscaffold.entity.User;
+import io.muxfe.springbootscaffold.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;

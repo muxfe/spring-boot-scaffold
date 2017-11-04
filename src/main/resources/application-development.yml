@@ -10,4 +10,4 @@ spring:
     show-sql: true
 logging:
   level:
-    io.muxfe.springbootstarter: debug
+    io.muxfe.springbootscaffold: debug

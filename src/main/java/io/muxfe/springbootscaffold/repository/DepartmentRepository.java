@@ -1,6 +1,6 @@
-package io.muxfe.springbootstarter.repository;
+package io.muxfe.springbootscaffold.repository;
 
-import io.muxfe.springbootstarter.entity.Department;
+import io.muxfe.springbootscaffold.entity.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DepartmentRepository extends JpaRepository<Department, Long> {

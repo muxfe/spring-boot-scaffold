@@ -1,9 +1,8 @@
-package io.muxfe.springbootstarter.controller;
+package io.muxfe.springbootscaffold.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.muxfe.springbootstarter.entity.Department;
-import io.muxfe.springbootstarter.entity.Employee;
-import io.muxfe.springbootstarter.repository.EmployeeRepository;
+import io.muxfe.springbootscaffold.entity.User;
+import io.muxfe.springbootscaffold.repository.UserRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,10 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -27,35 +30,36 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class EmployeeControllerTests {
+public class UserControllerTests {
 
   @Autowired
   private MockMvc mockMvc;
 
-  private final String apiUrl = "/api/employees";
+  private final String apiUrl = "/api/users";
 
   @Autowired
   private ObjectMapper objectMapper;
-
+  
   @Autowired
-  private EmployeeRepository repository;
-
-  private Employee employee;
+  private UserRepository repository;
+  
+  @Autowired
+  private BCryptPasswordEncoder bCryptPasswordEncoder;
+  
+  private User user;
+  
+  private List<String> roles;
 
   @Before
   public void setup() {
-    Department department = new Department(null, "test", "test");
-    Employee manager = new Employee(null, "manager", "manager", null,
-      System.currentTimeMillis(),
-      0.0, 0.0, department);
-    employee = repository.save(new Employee(
-      null, "test", "test", manager,
-      System.currentTimeMillis(),
-      0.0, 0.0, department));
+    roles = new ArrayList<>();
+    roles.add("USER");
+    user = repository.save(new User("testuser", bCryptPasswordEncoder.encode("pass"), roles, null));
   }
-
+  
   @Test
-  public void findAllEmployeesByPaginationTest() throws Exception {
+  @WithMockUser(roles = "ADMIN")
+  public void findAllUsersByPaginationest() throws Exception {
     this.mockMvc.perform(
       get(apiUrl).
         accept(MediaType.APPLICATION_JSON).
@@ -64,8 +68,8 @@ public class EmployeeControllerTests {
         param("sort", "id,desc")).
       andDo(print()).
       andExpect(status().isOk()).
-      andExpect(content().contentType("application/json;charset=UTF-8")).
-      andExpect(jsonPath("$._embedded.employees").isArray()).
+      andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
+      andExpect(jsonPath("$._embedded.users").isArray()).
       andExpect(jsonPath("$.page.number").value(0)).
       andExpect(jsonPath("$.page.size").value(10)).
       andExpect(jsonPath("$.page.totalElements").isNumber()).
@@ -73,79 +77,74 @@ public class EmployeeControllerTests {
   }
 
   @Test
-  public void findEmployeeByIdTest() throws Exception {
+  @WithMockUser(roles = "ADMIN")
+  public void findUserByIdTest() throws Exception {
     this.mockMvc.perform(
-      get(apiUrl + "/{id}", employee.getId()).
+      get(apiUrl + "/{id}", user.getId()).
         accept(MediaType.APPLICATION_JSON)).
       andDo(print()).
       andExpect(status().isOk()).
-      andExpect(content().contentType("application/json;charset=UTF-8")).
-      andExpect(jsonPath("$.id").value(employee.getId())).
-      andExpect(jsonPath("$.ename").value(employee.getEname())).
-      andExpect(jsonPath("$.job").value(employee.getJob())).
-      andExpect(jsonPath("$.hiredate").value(employee.getHiredate())).
-      andExpect(jsonPath("$.sal").value(employee.getSal())).
-      andExpect(jsonPath("$.comm").value(employee.getComm()));
+      andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
+      andExpect(jsonPath("$.id").value(user.getId())).
+      andExpect(jsonPath("$.username").value(user.getUsername())).
+      andExpect(jsonPath("$.roles[0]").value(user.getRoles().get(0)));
   }
-
+  
   @Test
-  @WithMockUser
-  public void createEmployeeTest() throws Exception {
-    Employee newEmployee = new Employee();
-    newEmployee.setEname("test");
+  @WithMockUser(roles = "ADMIN")
+  public void createUserTest() throws Exception {
+    User user = new User("testCreateUser", "pass", roles, null);
     this.mockMvc.perform(
       post(apiUrl).
         contentType(MediaType.APPLICATION_JSON).
-        content(objectMapper.writeValueAsString(newEmployee)).
+        content(objectMapper.writeValueAsString(user)).
         accept(MediaType.APPLICATION_JSON)).
       andDo(print()).
       andExpect(status().isCreated()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.ename").value("test"));
+      andExpect(jsonPath("$.username").value("testCreateUser")).
+      andExpect(jsonPath("$.roles[0]").value("USER"));
   }
-
+  
   @Test
-  @WithMockUser
-  public void updateEmployeeTest() throws Exception {
-    Employee body = new Employee(
-      employee.getId(), "changed", "changed", employee.getMgr(),
-      System.currentTimeMillis(),
-      0.0, 0.0, employee.getDepartment());
+  @WithMockUser(roles = "ADMIN")
+  public void updateUserTest() throws Exception {
+    User body = new User("changedName", "pass", Arrays.asList("ADMIN"), user.getId());
     this.mockMvc.perform(
-      put(apiUrl + "/{empno}", employee.getId()).
+      put(apiUrl + "/{id}", user.getId()).
         contentType(MediaType.APPLICATION_JSON).
         content(objectMapper.writeValueAsString(body)).
         accept(MediaType.APPLICATION_JSON)).
       andDo(print()).
       andExpect(status().isOk()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.ename").value("changed")).
-      andExpect(jsonPath("$.job").value("changed"));
+      andExpect(jsonPath("$._links.self.href").value("http://localhost/api/users/" + user.getId().toString())).
+      andExpect(jsonPath("$.username").value("changedName")).
+      andExpect(jsonPath("$.roles[0]").value("ADMIN"));
   }
-
+  
   @Test
-  @WithMockUser
-  public void partialUpdateEmployeeTest() throws Exception {
-    this.mockMvc.perform(
-      patch(apiUrl + "/{empno}", employee.getId()).
-        contentType(MediaType.APPLICATION_JSON).
-        content("{\"ename\":\"changed\"}").
-        accept(MediaType.APPLICATION_JSON)).
+  @WithMockUser(roles = "ADMIN")
+  public void partialUpdateUserTest() throws Exception {
+    RequestBuilder requestBuilder = patch(apiUrl + "/{id}", user.getId()).
+      contentType(MediaType.APPLICATION_JSON).
+      content("{\"username\":\"changed\"}").
+      accept(MediaType.APPLICATION_JSON);
+    this.mockMvc.perform(requestBuilder).
       andDo(print()).
       andExpect(status().isOk()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.ename").value("changed")).
-      andExpect(jsonPath("$.job").value("test"));
+      andExpect(jsonPath("$.username").value("changed"));
   }
 
   @Test
-  @WithMockUser
-  public void deleteEmployeeTest() throws Exception {
-    this.mockMvc.perform(delete(apiUrl + "/{empno}", employee.getId())).
-      andDo(print()).
+  @WithMockUser(roles = "ADMIN")
+  public void deleteUserTest() throws Exception {
+    this.mockMvc.perform(delete(apiUrl + "/{id}", user.getId())).
+      andDo(print()). 
       andExpect(status().isNoContent());
   }
-
+  
   @After
   public void clean() {
     repository.deleteAll();

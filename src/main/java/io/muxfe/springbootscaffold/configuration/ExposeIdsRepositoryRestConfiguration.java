@@ -1,4 +1,4 @@
-package io.muxfe.springbootstarter.configuration;
+package io.muxfe.springbootscaffold.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

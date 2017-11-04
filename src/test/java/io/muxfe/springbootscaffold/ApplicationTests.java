@@ -1,4 +1,4 @@
-package io.muxfe.springbootstarter;
+package io.muxfe.springbootscaffold;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
