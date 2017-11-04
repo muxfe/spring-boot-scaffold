@@ -6,6 +6,7 @@ buildscript {
     mavenCentral()
     maven { url "https://repo.spring.io/snapshot" }
     maven { url "https://repo.spring.io/milestone" }
+    maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
 	}
 	dependencies {
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
@@ -26,6 +27,7 @@ repositories {
   mavenCentral()
   maven { url "https://repo.spring.io/snapshot" }
   maven { url "https://repo.spring.io/milestone" }
+  maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
 }
 
 dependencies {
@@ -38,6 +40,7 @@ dependencies {
   compile "org.springframework.boot:spring-boot-starter-jdbc"
   compile 'org.springframework.boot:spring-boot-starter-aop'
 	compile 'com.h2database:h2'
+  compile 'org.springframework.data:spring-data-rest-hal-browser'
 	runtime 'org.springframework.boot:spring-boot-devtools'
 	compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
 	compileOnly 'org.projectlombok:lombok'
