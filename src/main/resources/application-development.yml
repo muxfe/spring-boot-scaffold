@@ -1,0 +1,13 @@
+server:
+  port: 9091
+spring:
+  jackson:
+    serialization:
+      indent_output: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+logging:
+  level:
+    io.muxfe.springbootstarter: debug

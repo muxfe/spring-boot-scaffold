@@ -24,27 +24,28 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
   public WebSecurityConfiguration(
     BCryptPasswordEncoder bCryptPasswordEncoder,
     UserDetailsService userDetailsService) {
-    
+
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     this.userDetailsService = userDetailsService;
   }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.csrf().disable()
-      .authorizeRequests()
-        .mvcMatchers("/api/users/**").hasRole("ADMIN")
-        .mvcMatchers(HttpMethod.GET, "/api/**").permitAll()
-        .mvcMatchers("/api/**").authenticated()
-        .anyRequest().permitAll().and()
-      .formLogin().and()
-      .logout();
+    http.
+      csrf().disable().
+      authorizeRequests().
+      mvcMatchers("/api/users/**").hasRole("ADMIN").
+      mvcMatchers(HttpMethod.GET, "/api/**").permitAll().
+      mvcMatchers("/api/**", "/management/**").authenticated().
+      anyRequest().permitAll().and().
+      formLogin().failureUrl("/login?error=true").and().
+      logout();
   }
-  
+
   @Autowired
   public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    auth
-      .userDetailsService(userDetailsService)
-      .passwordEncoder(bCryptPasswordEncoder);
+    auth.
+      userDetailsService(userDetailsService).
+      passwordEncoder(bCryptPasswordEncoder);
   }
 }

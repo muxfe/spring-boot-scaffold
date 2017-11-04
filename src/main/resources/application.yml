@@ -1,0 +1,16 @@
+server:
+  context-path: /
+spring:
+  data:
+    rest:
+      base-path: /api
+  jackson:
+      serialization:
+        fail-on-empty-beans: false
+      deserialization:
+        accept-empty-string-as-null-object: true
+management: 
+  port: 9091
+  address: 127.0.0.1
+  context-path: /management
+
