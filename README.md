@@ -1,10 +1,45 @@
-# spring-boot-starter
+# spring-boot-scaffold
 
-[![Build Status](https://travis-ci.org/muxfe/spring-boot-starter.svg?branch=master)](https://travis-ci.org/muxfe/spring-boot-starter.svg?branch=master)
+[![Build Status](https://travis-ci.org/muxfe/spring-boot-scaffold.svg?branch=master)](https://travis-ci.org/muxfe/spring-boot-scaffold.svg?branch=master)
 
-一个简单的 SpringBoot 开发基础框架，记录学习过程和踩的坑。
+一个简单的 SpringBoot 开发脚手架，记录学习过程和踩的坑。
 
-## REST API
+## Getting Started
+
+```sh
+git clone https://github.com/muxfe/spring-boot-scaffold.git my-project
+cd my-project
+
+./gradlew tasks
+
+# run all checks
+./gradlew check
+
+# run as spring boot application
+SPRING_PROFILES_ACTIVE=development ./gradlew bootRun
+```
+
+Open hal `http://localhost:9091/api` in browser.
+
+## IntelliJ IDEA Configuration
+
+### Run/Debug Configurations
+
+#### Add New Configuration: SpringBoot
+
+- Program Arguments: `--spring.profiles.active=development`.
+
+### Compile Configurations
+
+#### Build project Automatically for Liveload
+
+Enable `File->Settings->Build,Execution,Deployment->Compiler: Build project automatically`.
+
+#### Annotation Processors for `Lombok`
+
+Enable `File->Settings->Build,Execution,Deployment->Compiler->Annotation Processors: Enable annotation processing`.
+
+## Repository REST APIs
 
 - `GET /api/[repository]`
   - Accept: `application/json;chartset=utf-8`
@@ -74,7 +109,7 @@
 - [X] Support CORS
 - [X] Fuzzy search
 - [X] Application initializer
-- [ ] Entity Projection
+- [X] Entity Projection
 
 ## References
 
