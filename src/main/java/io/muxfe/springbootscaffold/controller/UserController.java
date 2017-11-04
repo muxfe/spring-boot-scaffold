@@ -5,7 +5,7 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @RepositoryRestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController extends FuzzySearchController<User> {
   
 }
