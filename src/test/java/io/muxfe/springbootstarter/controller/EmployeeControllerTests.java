@@ -91,21 +91,17 @@ public class EmployeeControllerTests {
   @Test
   @WithMockUser
   public void createEmployeeTest() throws Exception {
-    Employee employee = new Employee();
-    employee.setEname("test");
-    employee.setDepartment(employee.getDepartment());
-    employee.setMgr(employee.getMgr());
+    Employee newEmployee = new Employee();
+    newEmployee.setEname("test");
     this.mockMvc.perform(
       post(apiUrl).
         contentType(MediaType.APPLICATION_JSON).
-        content(objectMapper.writeValueAsString(employee)).
+        content(objectMapper.writeValueAsString(newEmployee)).
         accept(MediaType.APPLICATION_JSON)).
       andDo(print()).
       andExpect(status().isCreated()).
       andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).
-      andExpect(jsonPath("$.ename").value("test")).
-      andExpect(jsonPath("$._links.mgr").exists()).
-      andExpect(jsonPath("$._links.department").exists());
+      andExpect(jsonPath("$.ename").value("test"));
   }
 
   @Test
